@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holly's Natal Chart</title>
+<style>
+  :root {
+    --surface-0: #111110;
+    --surface-1: #1a1a19;
+    --surface-2: #222221;
+    --text-primary: #f0efe8;
+    --text-secondary: #a8a79f;
+    --text-muted: #6b6a65;
+    --border: rgba(255,255,255,0.09);
+    --border-strong: rgba(255,255,255,0.15);
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--surface-0); color: var(--text-primary); font-family: var(--font-sans); padding: 2rem; }
+  .db-name { font-size: 22px; font-weight: 500; color: var(--text-primary); }
+  .db-privacy { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-style: italic; }
+  .db-header { margin-bottom: 1.5rem; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .trinity { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .trinity-card { background: var(--surface-2); border: 0.5px solid var(--border-strong); border-radius: 12px; padding: 14px 16px; }
+  .trinity-role { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+  .trinity-glyph { font-size: 28px; margin-bottom: 4px; }
+  .trinity-sign { font-size: 16px; font-weight: 500; color: var(--text-primary); }
+  .trinity-deg { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
+  .panel { background: var(--surface-2); border: 0.5px solid var(--border-strong); border-radius: 12px; padding: 16px; }
+  .planet-row { display: flex; align-items: center; padding: 7px 0; border-bottom: 0.5px solid var(--border); }
+  .planet-row:last-child { border-bottom: none; }
+  .planet-glyph { width: 24px; font-size: 16px; text-align: center; flex-shrink: 0; }
+  .planet-name { font-size: 13px; color: var(--text-secondary); width: 68px; flex-shrink: 0; }
+  .planet-sign { font-size: 13px; font-weight: 500; color: var(--text-primary); flex: 1; }
+  .planet-deg { font-size: 12px; color: var(--text-muted); text-align: right; }
+  .planet-house { font-size: 11px; color: var(--text-muted); width: 30px; text-align: right; padding-left: 6px; }
+  .house-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .house-row { display: flex; align-items: center; padding: 5px 6px; border-radius: 6px; }
+  .house-num { font-size: 11px; color: var(--text-muted); width: 28px; flex-shrink: 0; }
+  .house-sign { font-size: 13px; font-weight: 500; color: var(--text-primary); flex: 1; }
+  .house-cusp { font-size: 11px; color: var(--text-muted); }
+  .aspects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin-bottom: 1.25rem; }
+  .aspect-pill { display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 0.5px solid var(--border-strong); border-radius: 8px; padding: 8px 12px; }
+  .aspect-type { font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; }
+  .aspect-planets { font-size: 13px; color: var(--text-primary); }
+  .aspect-orb { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+  .panel-section { background: var(--surface-2); border: 0.5px solid var(--border-strong); border-radius: 12px; padding: 16px; margin-bottom: 1.25rem; }
+  .maha-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .maha-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .maha-badge { font-size: 11px; padding: 3px 9px; border-radius: 4px; font-weight: 500; }
+  .timeline-row { margin-bottom: 14px; }
+  .timeline-row:last-child { margin-bottom: 0; }
+  .timeline-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .timeline-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .timeline-dates { font-size: 11px; color: var(--text-muted); }
+  .timeline-track { height: 7px; background: var(--surface-1); border-radius: 4px; overflow: hidden; margin-bottom: 3px; }
+  .timeline-fill { height: 100%; border-radius: 4px; }
+  .timeline-status { font-size: 11px; color: var(--text-muted); }
+  .divider-light { border: none; border-top: 0.5px solid var(--border); margin: 14px 0; }
+  .element-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.25rem; }
+  .elem-card { background: var(--surface-2); border: 0.5px solid var(--border-strong); border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .elem-name { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .elem-count { font-size: 20px; font-weight: 500; }
+  .elem-bar { height: 3px; border-radius: 2px; margin-top: 6px; }
+  .modality-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.25rem; }
+  .divider { border: none; border-top: 0.5px solid var(--border-strong); margin: 1.25rem 0; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+  .vedic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .vedic-row { display: flex; align-items: center; padding: 6px 0; border-bottom: 0.5px solid var(--border); }
+  .vedic-row:last-child { border-bottom: none; }
+  .vedic-planet { font-size: 13px; color: var(--text-secondary); width: 80px; flex-shrink: 0; }
+  .vedic-sign { font-size: 13px; font-weight: 500; color: var(--text-primary); flex: 1; }
+  .vedic-house { font-size: 11px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="db-header">
+  <div class="db-name">Holly's Natal Chart</div>
+  <div class="db-privacy">Birthdate hidden for privacy</div>
+</div>
+
+<p class="section-label">The big three</p>
+<div class="trinity">
+  <div class="trinity-card" style="border-left: 3px solid #EF9F27;">
+    <div class="trinity-role">Sun</div>
+    <div class="trinity-glyph">☀</div>
+    <div class="trinity-sign">Leo</div>
+    <div class="trinity-deg">28°37' · House 11</div>
+  </div>
+  <div class="trinity-card" style="border-left: 3px solid #7F77DD;">
+    <div class="trinity-role">Moon</div>
+    <div class="trinity-glyph">☽</div>
+    <div class="trinity-sign">Sagittarius</div>
+    <div class="trinity-deg">17°14' · House 3</div>
+  </div>
+  <div class="trinity-card" style="border-left: 3px solid #1D9E75;">
+    <div class="trinity-role">Ascendant</div>
+    <div class="trinity-glyph">⬆</div>
+    <div class="trinity-sign">Libra</div>
+    <div class="trinity-deg">22°14'</div>
+  </div>
+</div>
+
+<p class="section-label">Planetary placements</p>
+<div class="two-col">
+  <div class="panel">
+    <div class="planet-row"><span class="planet-glyph">☀</span><span class="planet-name">Sun</span><span class="planet-sign">Leo</span><span class="planet-deg">28°37'</span><span class="planet-house">H11</span></div>
+    <div class="planet-row"><span class="planet-glyph">☽</span><span class="planet-name">Moon</span><span class="planet-sign">Sagittarius</span><span class="planet-deg">17°14'</span><span class="planet-house">H3</span></div>
+    <div class="planet-row"><span class="planet-glyph">☿</span><span class="planet-name">Mercury</span><span class="planet-sign">Virgo</span><span class="planet-deg">10°52'</span><span class="planet-house">H11</span></div>
+    <div class="planet-row"><span class="planet-glyph">♀</span><span class="planet-name">Venus</span><span class="planet-sign">Cancer</span><span class="planet-deg">8°41'</span><span class="planet-house">H9</span></div>
+    <div class="planet-row"><span class="planet-glyph">♂</span><span class="planet-name">Mars</span><span class="planet-sign">Libra</span><span class="planet-deg">7°22'</span><span class="planet-house">H1</span></div>
+    <div class="planet-row"><span class="planet-glyph">♃</span><span class="planet-name">Jupiter</span><span class="planet-sign">Virgo</span><span class="planet-deg">3°08'</span><span class="planet-house">H11</span></div>
+  </div>
+  <div class="panel">
+    <div class="planet-row"><span class="planet-glyph">♄</span><span class="planet-name">Saturn</span><span class="planet-sign">Virgo</span><span class="planet-deg">22°01'</span><span class="planet-house">H12</span></div>
+    <div class="planet-row"><span class="planet-glyph">♅</span><span class="planet-name">Uranus</span><span class="planet-sign">Scorpio</span><span class="planet-deg">22°22'</span><span class="planet-house">H1</span></div>
+    <div class="planet-row"><span class="planet-glyph">♆</span><span class="planet-name">Neptune</span><span class="planet-sign">Sagittarius</span><span class="planet-deg">20°06'</span><span class="planet-house">H3</span></div>
+    <div class="planet-row"><span class="planet-glyph">♇</span><span class="planet-name">Pluto</span><span class="planet-sign">Libra</span><span class="planet-deg">19°17'</span><span class="planet-house">H1</span></div>
+    <div class="planet-row"><span class="planet-glyph">☊</span><span class="planet-name">North Node</span><span class="planet-sign">Leo</span><span class="planet-deg">25°40'</span><span class="planet-house">H11</span></div>
+    <div class="planet-row"><span class="planet-glyph">⚷</span><span class="planet-name">Chiron</span><span class="planet-sign">Taurus</span><span class="planet-deg">13°28'</span><span class="planet-house">H7</span></div>
+  </div>
+</div>
+
+<p class="section-label">House cusps</p>
+<div class="panel" style="margin-bottom: 1.25rem;">
+  <div class="house-grid">
+    <div class="house-row"><span class="house-num">I</span><span class="house-sign">Libra</span><span class="house-cusp">22°14'</span></div>
+    <div class="house-row"><span class="house-num">VII</span><span class="house-sign">Aries</span><span class="house-cusp">22°14'</span></div>
+    <div class="house-row"><span class="house-num">II</span><span class="house-sign">Scorpio</span><span class="house-cusp">19°28'</span></div>
+    <div class="house-row"><span class="house-num">VIII</span><span class="house-sign">Taurus</span><span class="house-cusp">19°28'</span></div>
+    <div class="house-row"><span class="house-num">III</span><span class="house-sign">Sagittarius</span><span class="house-cusp">21°05'</span></div>
+    <div class="house-row"><span class="house-num">IX</span><span class="house-sign">Gemini</span><span class="house-cusp">21°05'</span></div>
+    <div class="house-row"><span class="house-num">IV</span><span class="house-sign">Capricorn</span><span class="house-cusp">24°58'</span></div>
+    <div class="house-row"><span class="house-num">X</span><span class="house-sign">Cancer</span><span class="house-cusp">24°58'</span></div>
+    <div class="house-row"><span class="house-num">V</span><span class="house-sign">Aquarius</span><span class="house-cusp">26°08'</span></div>
+    <div class="house-row"><span class="house-num">XI</span><span class="house-sign">Leo</span><span class="house-cusp">26°08'</span></div>
+    <div class="house-row"><span class="house-num">VI</span><span class="house-sign">Pisces</span><span class="house-cusp">24°14'</span></div>
+    <div class="house-row"><span class="house-num">XII</span><span class="house-sign">Virgo</span><span class="house-cusp">24°14'</span></div>
+  </div>
+</div>
+
+<p class="section-label">Major aspects</p>
+<div class="aspects-grid">
+  <div class="aspect-pill"><span class="aspect-type tag" style="background:#412402;color:#FAC775;">Conjunction</span><span class="aspect-planets">Mars ☌ Uranus</span><span class="aspect-orb">0°</span></div>
+  <div class="aspect-pill"><span class="aspect-type tag" style="background:#26215C;color:#AFA9EC;">Trine</span><span class="aspect-planets">Sun △ Moon</span><span class="aspect-orb">1°</span></div>
+  <div class="aspect-pill"><span class="aspect-type tag" style="background:#26215C;color:#AFA9EC;">Trine</span><span class="aspect-planets">Sun △ Neptune</span><span class="aspect-orb">3°</span></div>
+  <div class="aspect-pill"><span class="aspect-type tag" style="background:#4B1528;color:#ED93B1;">Square</span><span class="aspect-planets">Venus □ Pluto</span><span class="aspect-orb">4°</span></div>
+  <div class="aspect-pill"><span class="aspect-type tag" style="background:#042C53;color:#85B7EB;">Opposition</span><span class="aspect-planets">Sun ☍ Chiron</span><span class="aspect-orb">4°</span></div>
+  <div class="aspect-pill"><span class="aspect-type tag" style="background:#4B1528;color:#ED93B1;">Square</span><span class="aspect-planets">Sun □ Saturn</span><span class="aspect-orb">6°</span></div>
+  <div class="aspect-pill"><span class="aspect-type tag" style="background:#26215C;color:#AFA9EC;">Trine</span><span class="aspect-planets">Moon △ Jupiter</span><span class="aspect-orb">2°</span></div>
+  <div class="aspect-pill"><span class="aspect-type tag" style="background:#26215C;color:#AFA9EC;">Trine</span><span class="aspect-planets">Venus △ Saturn</span><span class="aspect-orb">4°</span></div>
+</div>
+
+<p class="section-label">Vedic placements</p>
+<div class="two-col" style="margin-bottom:1.25rem;">
+  <div class="panel">
+    <div class="planet-row"><span class="planet-glyph">☀</span><span class="planet-name">Sun</span><span class="planet-sign">Leo</span><span class="planet-deg">28°37'</span><span class="planet-house">H11</span></div>
+    <div class="planet-row"><span class="planet-glyph">☽</span><span class="planet-name">Moon</span><span class="planet-sign">Sagittarius</span><span class="planet-deg">17°14'</span><span class="planet-house">H3</span></div>
+    <div class="planet-row"><span class="planet-glyph">☿</span><span class="planet-name">Mercury</span><span class="planet-sign">Leo</span><span class="planet-deg">16°22'</span><span class="planet-house">H11</span></div>
+    <div class="planet-row"><span class="planet-glyph">♀</span><span class="planet-name">Venus</span><span class="planet-sign">Gemini</span><span class="planet-deg">14°11'</span><span class="planet-house">H9</span></div>
+    <div class="planet-row"><span class="planet-glyph">♂</span><span class="planet-name">Mars</span><span class="planet-sign">Libra</span><span class="planet-deg">7°22'</span><span class="planet-house">H1</span></div>
+    <div class="planet-row"><span class="planet-glyph">♃</span><span class="planet-name">Jupiter</span><span class="planet-sign">Leo</span><span class="planet-deg">8°38'</span><span class="planet-house">H11</span></div>
+  </div>
+  <div class="panel">
+    <div class="planet-row"><span class="planet-glyph">♄</span><span class="planet-name">Saturn</span><span class="planet-sign">Virgo</span><span class="planet-deg">22°01'</span><span class="planet-house">H12</span></div>
+    <div class="planet-row"><span class="planet-glyph">☊</span><span class="planet-name">Rahu</span><span class="planet-sign">Cancer</span><span class="planet-deg">1°10'</span><span class="planet-house">H10</span></div>
+    <div class="planet-row"><span class="planet-glyph">☋</span><span class="planet-name">Ketu</span><span class="planet-sign">Capricorn</span><span class="planet-deg">1°10'</span><span class="planet-house">H4</span></div>
+    <div class="planet-row"><span class="planet-glyph">♅</span><span class="planet-name">Uranus</span><span class="planet-sign">Libra</span><span class="planet-deg">27°52'</span><span class="planet-house">H1</span></div>
+    <div class="planet-row"><span class="planet-glyph">♆</span><span class="planet-name">Neptune</span><span class="planet-sign">Scorpio</span><span class="planet-deg">25°36'</span><span class="planet-house">H2</span></div>
+    <div class="planet-row"><span class="planet-glyph">♇</span><span class="planet-name">Pluto</span><span class="planet-sign">Virgo</span><span class="planet-deg">24°47'</span><span class="planet-house">H12</span></div>
+  </div>
+</div>
+
+<p class="section-label">Vimshottari Dasha timeline</p>
+<div class="panel-section">
+
+  <div class="maha-header" style="margin-bottom:14px;">
+    <span class="maha-title">Completed Mahadashas</span>
+    <span class="maha-badge" style="background:#1f1f1d;color:#a8a79f;">Completed cycles</span>
+  </div>
+
+  <div class="timeline-row">
+    <div class="timeline-meta">
+      <span class="timeline-name">Ketu Mahadasha</span>
+      <span class="timeline-dates">Completed</span>
+    </div>
+    <div class="timeline-track">
+      <div class="timeline-fill" style="width:100%;background:#7F77DD;"></div>
+    </div>
+    <div class="timeline-status">Completed · karmic roots and detachment cycle</div>
+  </div>
+
+  <div class="timeline-row">
+    <div class="timeline-meta">
+      <span class="timeline-name">Venus Mahadasha</span>
+      <span class="timeline-dates">Completed</span>
+    </div>
+    <div class="timeline-track">
+      <div class="timeline-fill" style="width:100%;background:#D4537E;"></div>
+    </div>
+    <div class="timeline-status">Completed · relationships, beauty, values, and creative development</div>
+  </div>
+
+  <div class="timeline-row">
+    <div class="timeline-meta">
+      <span class="timeline-name">Sun Mahadasha</span>
+      <span class="timeline-dates">Completed</span>
+    </div>
+    <div class="timeline-track">
+      <div class="timeline-fill" style="width:100%;background:#EF9F27;"></div>
+    </div>
+    <div class="timeline-status">Completed · identity, visibility, authority, and self-definition</div>
+  </div>
+
+  <div class="timeline-row">
+    <div class="timeline-meta">
+      <span class="timeline-name">Moon Mahadasha</span>
+      <span class="timeline-dates">Completed</span>
+    </div>
+    <div class="timeline-track">
+      <div class="timeline-fill" style="width:100%;background:#7F77DD;"></div>
+    </div>
+    <div class="timeline-status">Completed · emotional life, home, memory, writing, and inner security</div>
+  </div>
+
+  <div class="divider-light"></div>
+
+  <div class="maha-header">
+    <span class="maha-title">Mars Mahadasha</span>
+    <span class="maha-badge" style="background:#4A1B0C;color:#F0997B;">2020 – Feb 2, 2027 · 7 years</span>
+  </div>
+
+  <div class="timeline-row">
+    <div class="timeline-meta">
+      <span class="timeline-name">Sun antardasha</span>
+      <span class="timeline-dates">May 1, 2026 – Jul 15, 2026</span>
+    </div>
+    <div class="timeline-track">
+      <div class="timeline-fill" style="width:62%;background:#EF9F27;"></div>
+    </div>
+    <div class="timeline-status" style="color:#FAC775;">Active now · ends Jul 15</div>
+  </div>
+
+  <div class="timeline-row">
+    <div class="timeline-meta">
+      <span class="timeline-name">Moon antardasha</span>
+      <span class="timeline-dates">Jul 15, 2026 – Feb 2, 2027</span>
+    </div>
+    <div class="timeline-track">
+      <div class="timeline-fill" style="width:0%;background:#7F77DD;"></div>
+    </div>
+    <div class="timeline-status">Upcoming · begins Jul 15</div>
+  </div>
+
+  <div class="divider-light"></div>
+
+  <div class="maha-header" style="margin-bottom:14px;">
+    <span class="maha-title">Rahu Mahadasha</span>
+    <span class="maha-badge" style="background:#04342C;color:#5DCAA5;">Feb 2, 2027 – Feb 2, 2045 · 18 years</span>
+  </div>
+
+  <div class="timeline-row">
+    <div class="timeline-meta">
+      <span class="timeline-name">Rahu Mahadasha begins</span>
+      <span class="timeline-dates">Feb 2, 2027 – Feb 2, 2045</span>
+    </div>
+    <div class="timeline-track">
+      <div class="timeline-fill" style="width:0%;background:#1D9E75;"></div>
+    </div>
+    <div class="timeline-status">Upcoming · 18-year cycle of expansion and ambition</div>
+  </div>
+
+</div>
+
+<p class="section-label">Chart signature</p>
+<div class="element-strip">
+  <div class="elem-card"><div class="elem-name">Fire</div><div class="elem-count" style="color:#F0997B;">3</div><div class="elem-bar" style="background:#D85A30;width:75%;"></div></div>
+  <div class="elem-card"><div class="elem-name">Earth</div><div class="elem-count" style="color:#97C459;">3</div><div class="elem-bar" style="background:#639922;width:75%;"></div></div>
+  <div class="elem-card"><div class="elem-name">Air</div><div class="elem-count" style="color:#AFA9EC;">3</div><div class="elem-bar" style="background:#7F77DD;width:75%;"></div></div>
+  <div class="elem-card"><div class="elem-name">Water</div><div class="elem-count" style="color:#5DCAA5;">2</div><div class="elem-bar" style="background:#1D9E75;width:50%;"></div></div>
+</div>
+<div class="modality-strip">
+  <div class="elem-card"><div class="elem-name">Cardinal</div><div class="elem-count" style="color:#FAC775;">3</div><div class="elem-bar" style="background:#EF9F27;width:50%;"></div></div>
+  <div class="elem-card"><div class="elem-name">Fixed</div><div class="elem-count" style="color:#ED93B1;">4</div><div class="elem-bar" style="background:#D4537E;width:67%;"></div></div>
+  <div class="elem-card"><div class="elem-name">Mutable</div><div class="elem-count" style="color:#85B7EB;">4</div><div class="elem-bar" style="background:#378ADD;width:67%;"></div></div>
+</div>
+
+<hr class="divider">
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+  <span style="font-size:12px;color:var(--text-muted);">Dominant themes:</span>
+  <span class="tag" style="background:#26215C;color:#AFA9EC;">11th house stellium</span>
+  <span class="tag" style="background:#4A1B0C;color:#F0997B;">Leo Sun / North Node</span>
+  <span class="tag" style="background:#4B1528;color:#ED93B1;">Venus–Pluto tension</span>
+  <span class="tag" style="background:#412402;color:#FAC775;">Mars–Uranus conjunction</span>
+  <span class="tag" style="background:#26215C;color:#AFA9EC;">Libra rising</span>
+  <span class="tag" style="background:#04342C;color:#5DCAA5;">Rahu in 10th (Cancer)</span>
+</div>
+
+</body>
+</html>
